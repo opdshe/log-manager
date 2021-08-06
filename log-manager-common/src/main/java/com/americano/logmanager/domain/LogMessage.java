@@ -1,19 +1,25 @@
 package com.americano.logmanager.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.americano.logmanager.util.serializer.LocalDateTimeDeserializer;
+import com.americano.logmanager.util.serializer.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
+import lombok.Setter;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@Setter
 public class LogMessage implements Serializable {
 	@JsonProperty(value = "topic")
 	private String topic;
 
 	@JsonProperty("createAt")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime createAt;
 
 	@JsonProperty("value")

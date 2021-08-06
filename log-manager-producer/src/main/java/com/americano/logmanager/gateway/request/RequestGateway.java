@@ -6,7 +6,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 @Service
-@MessagingGateway(defaultRequestChannel = "messageRequestChannel")
+@MessagingGateway(defaultRequestChannel = "messageRequestChannel", errorChannel = "requestErrorChannel")
 public interface RequestGateway {
 	void send(@Header(KafkaHeaders.TOPIC) String topic, Object value);
 }
