@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/log-manager-producer/error.txt
