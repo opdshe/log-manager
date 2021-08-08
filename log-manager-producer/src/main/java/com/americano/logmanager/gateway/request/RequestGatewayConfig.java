@@ -24,7 +24,7 @@ import java.util.Map;
 @Configuration
 public class RequestGatewayConfig {
 	@Value("${logmanager.kafka.bootstrap.servers}")
-	private List<String > bootstrapServers;
+	private List<String> bootstrapServers;
 
 	@Value("${logmanager.kafka.producer.ack:1}")
 	private String ack;
@@ -44,6 +44,9 @@ public class RequestGatewayConfig {
 	@Value("${logmanager.kafka.max.block.ms.config:6000}")
 	private Integer maxBlockConfig;
 
+	@Value("${logmanager.success.response:false}")
+	private Boolean successResponse;
+
 	@Bean
 	public MessageChannel messageRequestChannel() {
 		return new DirectChannel();
@@ -53,6 +56,12 @@ public class RequestGatewayConfig {
 	@ServiceActivator(inputChannel = "messageRequestChannel")
 	public MessageHandler kafkaMessageHandler() {
 		KafkaProducerMessageHandler<String, String> handler = new KafkaProducerMessageHandler<>(kafkaTemplate());
+		//브로커가 종료되어 accumulator에서 대기 후 max.block 시간 초과 시 requestErrorChannel로 결과를 전송
+		handler.setSendFailureChannelName("requestErrorChannel");
+		//accumulator가 broker로 전송 성공하면 응답을 받는 채널(ack)
+		if (successResponse) {
+			handler.setSendSuccessChannelName("requestSuccessChannel");
+		}
 		return handler;
 	}
 

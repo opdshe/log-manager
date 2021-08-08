@@ -1,4 +1,4 @@
-package com.americano.logmanager.gateway.requesterror;
+package com.americano.logmanager.gateway.request.error;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

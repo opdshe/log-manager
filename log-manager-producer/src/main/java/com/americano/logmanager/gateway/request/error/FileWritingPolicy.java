@@ -1,4 +1,4 @@
-package com.americano.logmanager.gateway.requesterror;
+package com.americano.logmanager.gateway.request.error;
 
 import com.americano.logmanager.domain.LogMessage;
 import com.americano.logmanager.util.JsonConverter;

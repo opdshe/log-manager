@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
-import lombok.Setter;
+import lombok.Getter;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Setter
+@Getter
 public class LogMessage implements Serializable {
 	@JsonProperty(value = "topic")
 	private String topic;
