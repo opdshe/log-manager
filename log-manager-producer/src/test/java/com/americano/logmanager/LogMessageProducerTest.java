@@ -1,5 +1,6 @@
 package com.americano.logmanager;
 
+import com.americano.logmanager.config.AsyncConfig;
 import com.americano.logmanager.gateway.request.RequestGateway;
 import com.americano.logmanager.gateway.request.RequestGatewayConfig;
 import com.americano.logmanager.gateway.request.error.ErrorGatewayConfig;
@@ -28,7 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 @IntegrationComponentScan(basePackages = "com.americano.logmanager")
 @SpringBootTest(classes = {RequestGateway.class, LogMessageProducer.class, RequestGatewayConfig.class
 		, ErrorGatewayConfig.class, RequestErrorHandlePolicy.class, RequestErrorHandler.class, FileWritingPolicy.class,
-		SuccessGatewayConfig.class, RequestSuccessHandler.class, RequestSuccessHandlePolicy.class})
+		SuccessGatewayConfig.class, RequestSuccessHandler.class, RequestSuccessHandlePolicy.class,
+		AsyncConfig.class})
 public class LogMessageProducerTest {
 	private static final String TEST_TOPIC = "test";
 
@@ -52,7 +54,7 @@ public class LogMessageProducerTest {
 	 */
 
 	@Test
-	void 데이터_전송_성공시_에러_대응로직_실행되면_안됨() {
+	void 데이터_전송_성공시_에러_대응로직_실행되면_안됨() throws ExecutionException, InterruptedException {
 		//given
 		DummyObject dummyObject = new DummyObject("dummy");
 
@@ -63,16 +65,18 @@ public class LogMessageProducerTest {
 		Mockito.verify(requestErrorHandler, Mockito.never()).handleMessage(any());
 	}
 
+
 	@Test
 	void 데이터_전송중_예외발생시_대응로직_실행되어야함() throws ExecutionException, InterruptedException {
-		//given
-		DummyObject dummyObject = new DummyObject("dummy");
-
 		//mocking
 		Mockito.doThrow(new RuntimeException()).when(kafkaMessageHandler).handleMessage(any());
 
+		//given
+		DummyObject dummyObject = new DummyObject("dummy");
+
 		//when
 		logMessageProducer.send(TEST_TOPIC, dummyObject);
+		Thread.sleep(250);
 
 		//then
 		Mockito.verify(requestErrorHandler, Mockito.atLeastOnce()).handleMessage(any());
