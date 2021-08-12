@@ -5,14 +5,16 @@ import com.americano.logmanager.gateway.request.RequestGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Future;
+
 @RequiredArgsConstructor
 @Component
 public class LogMessageProducer {
 	private final RequestGateway requestGateway;
 
-	public void send(String topic, Object value) {
+	public Future send(String topic, Object value) {
 		LogMessage logMessage = generateLogMessage(topic, value);
-		requestGateway.send(topic, logMessage);
+		return requestGateway.send(topic, logMessage);
 	}
 
 	private static LogMessage generateLogMessage(String topic, Object value) {
