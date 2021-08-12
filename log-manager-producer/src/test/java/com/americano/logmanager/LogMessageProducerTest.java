@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandler;
+import org.springframework.messaging.MessageHandler;
 
 import java.util.concurrent.ExecutionException;
 
@@ -28,8 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 @IntegrationComponentScan(basePackages = "com.americano.logmanager")
 @SpringBootTest(classes = {RequestGateway.class, LogMessageProducer.class, RequestGatewayConfig.class
 		, ErrorGatewayConfig.class, RequestErrorHandlePolicy.class, RequestErrorHandler.class, FileWritingPolicy.class,
-		SuccessGatewayConfig.class, RequestSuccessHandler.class, RequestSuccessHandlePolicy.class},
-		properties = "application.properties")
+		SuccessGatewayConfig.class, RequestSuccessHandler.class, RequestSuccessHandlePolicy.class})
 public class LogMessageProducerTest {
 	private static final String TEST_TOPIC = "test";
 
@@ -40,13 +39,13 @@ public class LogMessageProducerTest {
 	private RequestGateway requestGateway;
 
 	@MockBean
-	private RequestErrorHandler errorHandler;
+	private RequestErrorHandler requestErrorHandler;
 
 	@MockBean
-	private RequestSuccessHandler successHandler;
+	private RequestSuccessHandler requestSuccessHandler;
 
-	@MockBean
-	private KafkaProducerMessageHandler<String, String> kafkaProducerMessageHandler;
+	@MockBean(name = "kafkaMessageHandler")
+	private MessageHandler kafkaMessageHandler;
 
 	/**
 	 * 테스트 실행 시 application.properties에 적절한 bootstrap-server 입력해두어야함
@@ -61,7 +60,7 @@ public class LogMessageProducerTest {
 		logMessageProducer.send(TEST_TOPIC, dummyObject);
 
 		//then
-		Mockito.verify(errorHandler, Mockito.never()).handleMessage(any());
+		Mockito.verify(requestErrorHandler, Mockito.never()).handleMessage(any());
 	}
 
 	@Test
@@ -70,14 +69,14 @@ public class LogMessageProducerTest {
 		DummyObject dummyObject = new DummyObject("dummy");
 
 		//mocking
-		Mockito.doThrow(RuntimeException.class).when(kafkaProducerMessageHandler).processSendResult(any(), any(), any(), any());
+		Mockito.doThrow(new RuntimeException()).when(kafkaMessageHandler).handleMessage(any());
 
 		//when
 		logMessageProducer.send(TEST_TOPIC, dummyObject);
 
 		//then
-		Mockito.verify(errorHandler, Mockito.atLeastOnce()).handleMessage(any());
-		Mockito.verify(successHandler, Mockito.never()).handleMessage(any());
+		Mockito.verify(requestErrorHandler, Mockito.atLeastOnce()).handleMessage(any());
+		Mockito.verify(requestSuccessHandler, Mockito.never()).handleMessage(any());
 	}
 
 	@Test
