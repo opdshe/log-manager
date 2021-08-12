@@ -23,10 +23,10 @@ import java.util.Map;
 @PropertySource("classpath:application.properties")
 @Configuration
 public class RequestGatewayConfig {
-	@Value("${logmanager.kafka.bootstrap.servers}")
+	@Value("${logmanager.kafka.producer.bootstrap.servers}")
 	private List<String> bootstrapServers;
 
-	@Value("${logmanager.kafka.producer.ack:1}")
+	@Value("${logmanager.kafka.producer.acks:1}")
 	private String ack;
 
 	@Value("${logmanager.kafka.producer.compression.type:gzip}")
